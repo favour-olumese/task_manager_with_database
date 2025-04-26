@@ -1,0 +1,42 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"task_manager/controllers"
+	"task_manager/data"
+	"task_manager/router"
+	"time"
+)
+
+func main() {
+	// Set up context with a timeout for database connection
+	dbConnectContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	defer cancel()
+
+	// Connect to Database.
+	dbClient, err := data.ConnectDB(dbConnectContext)
+
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	// Disconnect database when main exits.
+	defer data.DisconnectDB(dbClient)
+
+	// Initialize Task Service (which holds the collection)
+	taskCollection := data.NewTaskCollection(dbClient, "task_manager", "tasks")
+
+	taskController := controllers.NewTaskController(taskCollection)
+
+	fmt.Printf("Task collection has been created: %v\n", taskCollection)
+
+	routes := router.SetupRouter(taskController)
+
+	log.Println("Starting server on port 8080.")
+	if err := routes.Run("localhost:8080"); err != nil {
+		log.Fatalf("failed to run server: %v", err)
+	}
+}
