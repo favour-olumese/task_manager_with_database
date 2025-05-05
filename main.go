@@ -18,7 +18,6 @@ func main() {
 
 	// Connect to Database.
 	dbClient, err := data.ConnectDB(dbConnectContext)
-
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -26,14 +25,18 @@ func main() {
 	// Disconnect database when main exits.
 	defer data.DisconnectDB(dbClient)
 
-	// Initialize Task Service (which holds the collection)
+	// Initialize Task and User Collections
 	taskCollection := data.NewTaskCollection(dbClient, "task_manager", "tasks")
+	userCollection := data.NewTaskCollection(dbClient, "task_manager", "users")
 
+	// Initialize Controllers
 	taskController := controllers.NewTaskController(taskCollection)
+	userController := controllers.NewUserController(userCollection)
 
 	fmt.Printf("Task collection has been created: %v\n", taskCollection)
+	fmt.Printf("User collection has been created: %v\n", userCollection)
 
-	routes := router.SetupRouter(taskController)
+	routes := router.SetupRouter(taskController, userController)
 
 	log.Println("Starting server on port 8080.")
 	if err := routes.Run("localhost:8080"); err != nil {
