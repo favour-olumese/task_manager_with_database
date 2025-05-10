@@ -2,75 +2,82 @@
 A task manager built with the Gin framework using MongoDB for its database.
 
 ## Objective
-The objective of this task is to enhance the Task Management API by adding authentication and authorization mechanisms using JSON Web Tokens (JWT). This enhancement will introduce the concept of users, login functionality, and protected routes to restrict access to certain endpoints based on user roles.
+The objective of this task is to refactor the existing Task Management API codebase using Clean Architecture principles. This refactor aims to improve the maintainability, testability, and scalability of the application by organizing the code into distinct layers with clear separation of concerns.
 
 ## Requirements:
-1. Implement user management functionality to support creating user accounts with unique usernames and passwords.
-2. Introduce JWT-based authentication to validate user credentials and generate access tokens upon successful login.
-3. Secure the API endpoints by implementing middleware to validate JWT tokens for authentication.
-4. Define user roles (e.g., admin, regular user) and restrict access to certain endpoints based on user roles.
-5. Implement login functionality to authenticate users and generate JWT tokens for subsequent API requests.
-6. Ensure that only authenticated users with valid JWT tokens can access protected routes.
-7. Update the API documentation to include instructions for user registration, login, and usage of protected endpoints.
-8. Test the API endpoints with and without authentication to verify proper enforcement of access control rules.
-9. Verify that user credentials are securely stored and transmitted using appropriate encryption and hashing techniques.
+1. Analyze the existing Task Management API codebase and identify areas for improvement based on Clean Architecture principles.
+2. Refactor the codebase into separate layers representing different architectural components, such as domain, use cases, and infrastructure.
+3. Define clear boundaries between layers to enforce dependencies from higher-level layers to lower-level layers.
+4. Implement domain models representing core business entities and logic, ensuring they remain independent of external frameworks or libraries.
+5. Define use cases as the central component of the application, encapsulating the application's business logic and orchestrating interactions between different layers.
+6. Implement interfaces to abstract external dependencies, such as data access mechanisms, allowing for easy substitution and testing.
+7. Organize the codebase into distinct packages or modules representing different architectural layers (e.g., domain, usecase, repository, delivery).
+8. Update the API endpoints to interact with the use cases layer, ensuring that business logic is centralized and reusable.
 
   
 ## Instructions
-1. Implement user management endpoints for user registration and login, including:
-    * POST /register: Create a new user account with a unique username and password.
-    * POST /login: Authenticate users and generate JWT tokens upon successful login.
-2. Generate JWT tokens with appropriate claims (e.g., user ID, username, expiration time) using a secure JWT library.
-3. Implement middleware to validate JWT tokens for protected routes, ensuring that only authenticated users can access them.
-4. Define user roles and restrict access to certain endpoints based on user roles using middleware.
-5. Update existing API endpoints to enforce authentication and authorization requirements for protected routes.
-6. Test the API endpoints using Postman or similar tools to verify that authentication and authorization are working correctly.
-7. Verify that only authenticated users can access protected routes, and unauthorized access attempts are rejected with appropriate error responses.
-8. Ensure that user credentials are securely stored using appropriate encryption and hashing techniques to protect against security threats.
-9. Document the authentication and authorization process, including instructions for user registration, login, and usage of protected endpoints.
-10. Update the API documentation to reflect changes related to authentication and authorization, including any modifications to request and response formats.
+1. Conduct a thorough review of the existing Task Management API codebase to understand its structure and functionality.
+2. Identify areas where the codebase could benefit from restructuring based on Clean Architecture principles, such as separation of concerns and dependency inversion.
+3. Refactor the codebase into separate layers, with clear boundaries and dependencies between layers.
+4. Implement domain models representing core business entities and logic, ensuring they are decoupled from external frameworks or libraries.
+5. Define use cases to encapsulate the application's business logic, orchestrating interactions between different layers and enforcing business rules.
+6. Implement interfaces to abstract external dependencies, such as data access mechanisms, allowing for easy substitution and testing.
+7. Organize the codebase into packages or modules representing different architectural layers, with clear naming conventions to indicate their purpose.
+8. Update the API endpoints to interact with the use cases layer, ensuring that business logic is centralized and reusable across different delivery mechanisms.
 
 ## Folder Structure:
 Follow the following folder structure for this task
 
 task_manager/
-├── main.go
-├── controllers/
-│   └── controller.go
-├── models/
-│   ├── task.go
-│   └── user.go
-├── data/
-│   ├── task_service.go
-│   └── user_service.go
-├── middleware/
-│   └── auth_middleware.go
-├── router/
-│   └── router.go
+├── Delivery/
+│   ├── main.go
+│   ├── controllers/
+│   │   └── controller.go
+│   └── routers/
+│       └── router.go
+├── Domain/
+│   └── domain.go
+├── Infrastructure/
+│   ├── auth_middleWare.go
+│   ├── jwt_service.go
+│   └── password_service.go
+├── Repositories/
+│   ├── task_repository.go
+│   └── user_repository.go
+└── Usecases/
+│   ├── task_usecases.go
+│   └── user_usecases.go
 ├── docs/
 │   └── api_documentation.md
 └── go.mod
   
 
-* main.go: Entry point of the application.
-* controllers/task_controller.go: Handles incoming HTTP requests and invokes the appropriate service methods for both tasks and user authentication.
-* models/task.go: Defines the Task struct.
-* models/user.go: Defines the User struct.
-* data/task_service.go: Contains business logic and data manipulation functions for tasks.
-* data/user_service.go: Contains business logic and data manipulation functions for users, including hashing passwords.
-* middleware/auth_middleware.go: Implements middleware to validate JWT tokens for authentication and authorization.
-* router/router.go: Sets up the routes and initializes the Gin router, and defines the routing configuration for the API.
-* docs/api_documentation.md: Contains API documentation and other related documentation.
-* go.mod: Defines the module and its dependencies.
+* Delivery/: Contains files related to the delivery layer, handling incoming requests and responses.
+    * main.go: Sets up the HTTP server, initializes dependencies, and defines the routing configuration.
+    * controllers/controllers.go: Handles incoming HTTP requests and invokes the appropriate use case methods.
+    * routers/routers.go: Sets up the routes and initializes the Gin router.
+* Domain/: Defines the core business entities and logic.
+    * domain.go: Contains the core business entities such as Task and User structs. 
+* Infrastructure/: Implements external dependencies and services.
+    * auth_middleWare.go: Middleware to handle authentication and authorization using JWT tokens.
+    * jwt_service.go: Functions to generate and validate JWT tokens.
+    * password_service.go: Functions for hashing and comparing passwords to ensure secure storage of user credentials.
+* Repositories/: Abstracts the data access logic.
+    * task_repository.go: Interface and implementation for task data access operations.
+    * user_repository.go: Interface and implementation for user data access operations.
+* Usecases/: Contains the application-specific business rules.
+    * task_usecases.go: Implements the use cases related to tasks, such as creating, updating, retrieving, and deleting tasks.
+    * user_usecases.go: Implements the use cases related to users, such as registering, logging in.
 
 ## Evaluation Criteria:
-* Successful implementation of user management functionality for user registration and login.
-* Proper generation and validation of JWT tokens for authentication.
-* Correct enforcement of access control rules for protected routes based on user roles.
-* Secure storage and transmission of user credentials using encryption and hashing techniques.
-* Verification of authentication and authorization functionality through testing of API endpoints.
-* Clarity and completeness of documentation for authentication and authorization processes.
-* Compliance with the provided instructions and requirements.
+* Adherence to Clean Architecture principles, including separation of concerns, dependency inversion, and clear boundaries between layers.
+* Clear organization of the codebase into distinct layers with well-defined responsibilities.
+* Implementation of domain models and use cases representing core business logic, ensuring they remain decoupled and reusable.
+* Proper abstraction of external dependencies using interfaces, allowing for easy substitution and testing.
+* Maintenance of backward compatibility with the existing API functionality through careful refactoring.
+* Thorough documentation of the refactored architecture, including design decisions and guidelines for future development.
+* Completion of unit tests for critical components to ensure correctness and maintainability.
+Compliance with the provided instructions and requirements
 
 ## Note
-* Authentication and authorization are critical components of web applications to ensure secure access to resources. Pay close attention to implementing these mechanisms securely and effectively.
+* Clean Architecture provides a flexible and scalable approach to designing software systems. Focus on achieving a clear separation of concerns and organizing the codebase into layers that facilitate maintainability and testability.

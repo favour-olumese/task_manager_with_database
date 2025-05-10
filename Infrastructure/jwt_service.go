@@ -1,49 +1,27 @@
-package auth
+package infrastructure
 
 import (
+	"errors"
 	"fmt"
-	"log"
+	domain "task_manager/Domain"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var jwtSecret = []byte("ahnljdbjiohwebljnsknpihdbuo")
 
-// Generate a hash of the password
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", fmt.Errorf("failed to hash password: %w", err)
-	}
-	return string(hashedPassword), nil
-}
+type jwtService struct{}
 
-// Compare a hashed password with a plaintext password
-func ComparePasswords(hashedPassword, plaintextPassword string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plaintextPassword))
-
-	if err != nil {
-		log.Printf("Password comparison failed: %v", err)
-	} else {
-		log.Printf("Password comparison successful")
-	}
-	return err
-}
-
-// Claims structure for the JWT
-type CustomClaims struct {
-	Username string `json:"username"`
-	Role     string `json:"role"`
-	jwt.RegisteredClaims
+func NewJWTService() domain.JWTService {
+	return &jwtService{}
 }
 
 // Creates a new JWT for a given username and role
-func GenerateToken(username, role string) (string, error) {
+func (service *jwtService) GenerateToken(username, role string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Token valid for 24 hours
 
-	claims := &CustomClaims{
+	claims := domain.CustomClaims{
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -55,18 +33,18 @@ func GenerateToken(username, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims) // Using HS256 signing method.
 
-	// Sigrn the token with the secret key.
+	// Sign the token with the secret key.
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
-		return "", fmt.Errorf("failed to sign token: %w", err)
+		return "", errors.New("failed to sign token")
 	}
 
 	return tokenString, nil
 }
 
 // Parses and validates a JWT
-func ValidateToken(tokenString string) (*CustomClaims, error) {
-	claims := &CustomClaims{}
+func (service *jwtService) ValidateToken(tokenString string) (*domain.CustomClaims, error) {
+	claims := &domain.CustomClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		// Check the signing method

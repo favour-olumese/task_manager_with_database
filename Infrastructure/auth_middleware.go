@@ -1,16 +1,24 @@
-package middleware
+package infrastructure
 
 import (
 	"fmt"
 	"net/http"
 	"strings"
-	"task_manager/auth"
+	domain "task_manager/Domain"
 
 	"github.com/gin-gonic/gin"
 )
 
+type AuthMiddleware struct {
+	jwtService domain.JWTService
+}
+
+func NewAuthMiddleware(jwtService domain.JWTService) *AuthMiddleware {
+	return &AuthMiddleware{jwtService: jwtService}
+}
+
 // Validates the JWT token
-func AuthRequired() gin.HandlerFunc {
+func (middleware *AuthMiddleware) AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get to fron the authrorization header
 		authHeader := c.GetHeader("Authorization")
@@ -29,7 +37,7 @@ func AuthRequired() gin.HandlerFunc {
 		tokenString := parts[1] // Extract the token string
 
 		// Validate the token
-		claims, err := auth.ValidateToken(tokenString)
+		claims, err := middleware.jwtService.ValidateToken(tokenString)
 		if err != nil {
 			// Handle invalid or expired tokens
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Invalid or expired token: %v", err.Error())})
@@ -47,7 +55,7 @@ func AuthRequired() gin.HandlerFunc {
 
 // This checks if the authenicated user has one of the required roles
 // It assumes AuthRequired middleware has already run and set the "role" in the context
-func AuthorizeRole(requireRoles ...string) gin.HandlerFunc {
+func (middleware *AuthMiddleware) AuthorizeRole(requireRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the role from the context (set by AuthRequired middleware)
 		role, exists := c.Get("role")
