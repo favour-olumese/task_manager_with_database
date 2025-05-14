@@ -57,7 +57,7 @@ func (usecase *userUsecase) Login(ctx context.Context, username, password string
 
 	// Compare password
 	if err := usecase.passwordService.ComparePasswords(user.PasswordHash, password); err != nil {
-		return "", errors.New("invalid usernae or password")
+		return "", errors.New("invalid username or password")
 	}
 
 	// Generate JWT token

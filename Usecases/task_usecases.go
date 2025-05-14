@@ -3,17 +3,16 @@ package usecases
 import (
 	"context"
 	domain "task_manager/Domain"
-	repositories "task_manager/Repositories"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type taskUsecase struct {
-	taskRepo repositories.TaskRepository
+	taskRepo domain.TaskRepository
 }
 
 // Create a new instance of TaskUsecase
-func NewTaskUsecase(repo repositories.TaskRepository) domain.TaskUsecase {
+func NewTaskUsecase(repo domain.TaskRepository) domain.TaskUsecase {
 	return &taskUsecase{
 		taskRepo: repo,
 	}

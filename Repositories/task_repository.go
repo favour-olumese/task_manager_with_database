@@ -10,23 +10,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Defines the interface
-type TaskRepository interface {
-	GetAllTask(ctx context.Context) ([]domain.Task, error)
-	GetTaskByID(ctx context.Context, id string) (domain.Task, error)
-	UpdateTask(ctx context.Context, id string, updatedTask domain.Task) error
-	DeleteTask(ctx context.Context, id string) error
-	NewTask(ctx context.Context, task domain.Task) (*mongo.InsertOneResult, error)
-}
-
 type taskRepository struct {
 	collection *mongo.Collection
 }
 
 // Ensure *taskRepostory implements TaskRepository
-var _ TaskRepository = (*taskRepository)(nil)
+var _ domain.TaskRepository = (*taskRepository)(nil)
 
-func NewTaskRepository(db *mongo.Client, dbName, collectionName string) TaskRepository {
+func NewTaskRepository(db *mongo.Client, dbName, collectionName string) domain.TaskRepository {
 	return &taskRepository{
 		collection: db.Database(dbName).Collection(collectionName),
 	}

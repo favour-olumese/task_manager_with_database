@@ -38,15 +38,20 @@ func (userControl *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 	defer cancel()
 
 	insertResult, err := userControl.userUsecase.Register(ctx, req.Username, req.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	insertedID := insertResult.InsertedID.(primitive.ObjectID)
+	insertedID, ok := insertResult.InsertedID.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get inserted ID"})
+		return
+	}
 
 	// Registration successful
 	// Return user information with the hashed password
@@ -70,7 +75,7 @@ func (userControl *UserController) Login(c *gin.Context) {
 	}
 
 	// Find the user by username in the database
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 	defer cancel()
 
 	tokenString, err := userControl.userUsecase.Login(ctx, req.Username, req.Password)

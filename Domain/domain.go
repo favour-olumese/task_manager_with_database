@@ -51,6 +51,14 @@ type UserRepository interface {
 	FindUserByUsername(ctx context.Context, username string) (*User, error)
 }
 
+type TaskRepository interface {
+	GetAllTask(ctx context.Context) ([]Task, error)
+	GetTaskByID(ctx context.Context, id string) (Task, error)
+	UpdateTask(ctx context.Context, id string, updatedTask Task) error
+	DeleteTask(ctx context.Context, id string) error
+	NewTask(ctx context.Context, task Task) (*mongo.InsertOneResult, error)
+}
+
 // ------------------------- Infrastructure -------------------------
 
 // JWTService Interface

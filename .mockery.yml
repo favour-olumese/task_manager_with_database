@@ -1,0 +1,23 @@
+# .mockery.yaml (Attempt 7 - Simpler filename template)
+
+all: false
+dir: ./mocks
+# filename: '{{.InterfaceNameSnake}}.go' # Problematic line
+filename: '{{.InterfaceName}}.go'      # CHANGE: Use the standard InterfaceName.
+                                       # This will produce CamelCase filenames like UserRepository.go
+pkgname: mocks
+recursive: true
+template: testify
+# structname: '{{.Mock}}{{.InterfaceName}}' # Still commented out to aim for UserRepositoryMock
+
+# Optional, keep if they didn't cause errors before:
+# force-file-write: true
+# formatter: goimports
+# log-level: info
+# require-template-schema-exists: true
+# template-schema: '{{.Template}}.schema.json'
+
+packages:
+  task_manager/Domain:
+    config:
+      all: true
